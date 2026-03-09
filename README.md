@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Бармалей — сайт
 
-## Getting Started
+Лендинг: автосервис (ремонт электромобилей и гибридов в Алматы) + подбор и поставка авто из Китая в СНГ.
 
-First, run the development server:
+## Стек
+
+- Next.js 16 (App Router), React 19, Tailwind CSS
+- Формы → WhatsApp (и опционально Telegram через API)
+- Админка: вход по паролю (Argon2id), rate limit на логин, редактирование контента (API GET/PATCH `/api/admin/content`)
+
+## Локальный запуск
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Переменные окружения
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Создайте `.env.local` (файл в `.gitignore`):
 
-## Learn More
+- **Админка** (опционально):
+  - `ADMIN_PASSWORD_HASH` — хеш пароля (Argon2id). Сгенерировать: `node scripts/hash-password.mjs "ваш-пароль"`
+  - `JWT_SECRET` — секрет для JWT (минимум 32 символа). Скрипт выше выводит пример.
 
-To learn more about Next.js, take a look at the following resources:
+- **Telegram** (опционально, для дублирования заявок):
+  - `TELEGRAM_BOT_TOKEN` — токен бота
+  - `TELEGRAM_CHAT_ID` — ID чата для уведомлений
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Контакты (WhatsApp, телефон, Telegram, Instagram) задаются в `src/data/site.ts` и при наличии админки могут переопределяться через `.data/site-overrides.json`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Деплой
 
-## Deploy on Vercel
+- **Собственный сервер (Node):** `npm run build && npm run start`. Для сохранения правок админки нужна записываемая директория `.data/` (контент сохраняется в `.data/site-overrides.json`).
+- **Vercel:** `vercel`. Учтите: на Vercel нет постоянной файловой записи — правки админки через PATCH не сохранятся между инстансами. Для продакшена с админкой используйте VPS или хранилище (KV/БД).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Безопасность
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Перед релизом пройдите [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md).
+
+## SEO-страницы
+
+- `/` — главная (выбор: сервис / авто из Китая)
+- `/remont-elektromobilej-almaty`
+- `/remont-gibridov-almaty`
+- `/obsluzhivanie-kitajskih-elektromobilej`
+- `/avto-iz-kitaya`
+- `/avto-iz-kitaya-kazahstan`
+- `/avto-iz-kitaya-rossiya`
+- `/elektromobili-iz-kitaya`
+
+Админка: `/admin` (вход по паролю).
+
+## Для заказчика: чего может не хватать / что лишнее
+
+**Может пригодиться позже:**
+- Реальные фото сервиса и авто (сейчас — заглушки/мок; можно заменить через админку или статичные файлы).
+- Карта (Яндекс/Google) в блоке контактов — при желании встраивается отдельно.
+- Краткий блок «Частые вопросы» (FAQ) — снижает нагрузку на менеджеров.
+- Подключение Bitrix24/AmCRM — отдельно от разработки сайта.
+
+**Сейчас сделано с запасом, но без перегруза:**
+- Два направления чётко разделены тумблером, контент не смешан.
+- Моковые карточки авто и примеры работ показывают структуру; данные легко заменить на реальные.
+- Процесс оформлен лаконично и наглядно (шаги с линией и hover).
+- Переход между «Сервис» и «Авто из Китая» быстрый и плавный (≈0,2 с).
